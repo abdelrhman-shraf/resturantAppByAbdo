@@ -1,5 +1,7 @@
 package com.example.SpringDataJpa.resturantApp.MenuItems;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -84,6 +86,18 @@ public class MenuItemController {
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error happened while Assigning category to menu item :( ");
+        }
+    }
+    @GetMapping("/search")
+      public ResponseEntity<?> searchMenuFilter(@RequestParam(required = false) Integer categoryId,@RequestParam(required = false) Integer minPrice
+       ,@RequestParam(required = false) Integer maxPrice,@RequestParam(required = false) String name,
+        @RequestParam(required = false,defaultValue = "desc") String sortStrategy){
+        try {
+           List <MenuItemResponseDto> response=service.searchMenu(categoryId, minPrice, maxPrice, name, sortStrategy);
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error happened while searching for menu item :( ");
         }
     }
 

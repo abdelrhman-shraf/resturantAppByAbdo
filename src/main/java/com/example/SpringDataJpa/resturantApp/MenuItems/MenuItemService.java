@@ -1,10 +1,15 @@
 package com.example.SpringDataJpa.resturantApp.MenuItems;
 
 
+import java.util.ArrayList;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.example.SpringDataJpa.resturantApp.Categories.Category;
@@ -86,6 +91,31 @@ public class MenuItemService {
         return mapper.toResponseDto(menuItem);
 
     }
-
+    public List<MenuItemResponseDto> searchMenu(Integer categoryId,Integer minPrice,Integer maxPrice,String itemName,String sortMethod){
+        Specification<MenuItem> spec=Specification.where(MenuSearchSpecifications.hasCategory(categoryId))
+        .and(MenuSearchSpecifications.hasPriceRange(minPrice, maxPrice))
+        .and(MenuSearchSpecifications.hasName(itemName));
+        Sort sort;
+        if (sortMethod.isEmpty() || sortMethod.isBlank()) {
+             sort = Sort.by(Direction.DESC, "price");
+        }
+        else{
+             switch (sortMethod.toLowerCase()) {
+            case "desc": sort = Sort.by(Direction.DESC, "price");
+                break;
+                case "asc":sort=Sort.by(Direction.ASC, "price");
+                break;
+            default:
+                sort = Sort.by(Direction.DESC, "price");
+                break;
+        }
+        }
+        List <MenuItem> listforitems=repo.findAll(spec,sort);
+        List <MenuItemResponseDto> responseDto=new ArrayList<>();
+        for (MenuItem menuItem : listforitems) {
+            responseDto.add(mapper.toResponseDto(menuItem));
+        }
+        return responseDto;
+    }
 
 }

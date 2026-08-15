@@ -195,7 +195,11 @@ public class OrderService {
       return repo.getRevenue(date);
    }
    public List<MostLoyalCustomerProjection> getLoyalCustomers(int limit,String sort){
-   switch (sort.toLowerCase()) {
+      if (limit<=0 || limit>25) {
+         limit=3;
+      }
+      if ( ! sort.isEmpty()) {
+      switch (sort.toLowerCase()) {
       case "amount": sort="totalAmount";
          break;
       case "orders": sort="numOrders";
@@ -205,8 +209,11 @@ public class OrderService {
          sort = "numOrders";
          break;
    }
+      }else{
+         sort="numOrders";
+      }
       Pageable pageable =PageRequest.of(0, limit,Sort.Direction.DESC,sort);
       return repo.loyalCustomers(pageable);
    }
-
+   
 }
