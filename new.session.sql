@@ -38,6 +38,11 @@ CREATE TABLE orders (
     payment_method VARCHAR(30),
     total_amount DECIMAL(10,2)
 );
+SELECT o.customer_id, COUNT(o.customer_id) AS num_of_orders,SUM(o.total_amount) AS total_money_spent
+,c.first_name,c.last_name,c.phone,c.email FROM orders AS o
+LEFT JOIN customers AS c ON c.customer_id=o.customer_id
+ GROUP BY o.customer_id  LIMIT 1 ;
+
 SELECT * FROM orders;
 ALTER TABLE orders  ADD CONSTRAINT fk_customer FOREIGN KEY (customer_id) REFERENCES 
 customers(customer_id);

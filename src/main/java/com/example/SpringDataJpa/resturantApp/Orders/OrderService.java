@@ -23,6 +23,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.ScrollPosition.Direction;
 import org.springframework.stereotype.Service;
 
 import com.example.SpringDataJpa.resturantApp.Customer.Customer;
@@ -34,6 +35,7 @@ import com.example.SpringDataJpa.resturantApp.OrderDetails.OrderDetailsRepo;
 import com.example.SpringDataJpa.resturantApp.OrderDetails.dto.OrderDetailsRequestDto;
 import com.example.SpringDataJpa.resturantApp.Orders.Enums.SortingTopSellerEnum;
 import com.example.SpringDataJpa.resturantApp.Orders.Enums.StatusEnum;
+import com.example.SpringDataJpa.resturantApp.Orders.Projections.MostLoyalCustomerProjection;
 import com.example.SpringDataJpa.resturantApp.Orders.dto.CreateOrderDto;
 import com.example.SpringDataJpa.resturantApp.Orders.dto.CustomerForOrdersDto;
 import com.example.SpringDataJpa.resturantApp.Orders.dto.ItemForOrderDto;
@@ -192,6 +194,19 @@ public class OrderService {
       };
       return repo.getRevenue(date);
    }
-
+   public List<MostLoyalCustomerProjection> getLoyalCustomers(int limit,String sort){
+   switch (sort.toLowerCase()) {
+      case "amount": sort="totalAmount";
+         break;
+      case "orders": sort="numOrders";
+   break;
+      default:
+         System.out.println("no matching sort strategy entered (the default is by number of orders !)");
+         sort = "numOrders";
+         break;
+   }
+      Pageable pageable =PageRequest.of(0, limit,Sort.Direction.DESC,sort);
+      return repo.loyalCustomers(pageable);
+   }
 
 }

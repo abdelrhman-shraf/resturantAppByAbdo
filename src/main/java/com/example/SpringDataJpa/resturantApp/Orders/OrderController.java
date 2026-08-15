@@ -1,6 +1,7 @@
 package com.example.SpringDataJpa.resturantApp.Orders;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.SpringDataJpa.resturantApp.Orders.Enums.StatusEnum;
+import com.example.SpringDataJpa.resturantApp.Orders.Projections.MostLoyalCustomerProjection;
 import com.example.SpringDataJpa.resturantApp.Orders.dto.CreateOrderDto;
 import com.example.SpringDataJpa.resturantApp.Orders.dto.OrderInfoResponse;
 import com.example.SpringDataJpa.resturantApp.Orders.dto.OrderResponseDto;
@@ -118,6 +120,23 @@ public class OrderController {
     public ResponseEntity<?> getRevenue(@RequestParam(required = false,defaultValue = "week") String duration){
         try {
             BigDecimal response=service.getRevenue(duration);
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        }
+        catch(IllegalArgumentException e){
+            System.out.println(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+         catch (Exception e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+
+    }
+    @GetMapping("/loyal")
+    public ResponseEntity<?> getLoyalCustomers(@RequestParam(defaultValue = "3",required = false) Integer limit ,
+    @RequestParam(defaultValue = "orders",required = false) String sort){
+        try {
+           List<MostLoyalCustomerProjection> response=service.getLoyalCustomers(limit, sort);
             return ResponseEntity.status(HttpStatus.OK).body(response);
         }
         catch(IllegalArgumentException e){
