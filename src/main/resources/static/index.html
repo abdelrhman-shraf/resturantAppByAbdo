@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Restaurant ordering and management frontend for a Spring Boot REST API">
+  <title>Abdo's Kitchen</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="toast-root" aria-live="polite"></div>
+
+  <header class="topbar">
+    <a class="brand" href="#home" data-view="home">
+      <span class="brand-mark">AK</span>
+      <span><strong>Abdo's</strong><small>Kitchen</small></span>
+    </a>
+
+    <nav class="nav">
+      <button class="nav-link active" data-view="home">Menu</button>
+      <button class="nav-link" data-view="orders">My Orders</button>
+      <button class="nav-link" data-view="profile">Profile</button>
+      <button class="nav-link admin-link" data-view="admin">Admin</button>
+    </nav>
+
+    <button class="cart-button" id="cart-button" type="button" aria-label="Open cart">
+      <span>Cart</span><b id="cart-count">0</b>
+    </button>
+  </header>
+
+  <main>
+    <section id="view-home" class="view active">
+      <div class="hero">
+        <div class="hero-copy">
+          <span class="eyebrow">FRESH • FAST • MADE WITH CARE</span>
+          <h1>Good food.<br><em>Good mood.</em></h1>
+          <p>Browse the live menu, build your order, and send it directly to your Spring Boot restaurant API.</p>
+          <a class="primary-button" href="#menu">Explore menu <span>↓</span></a>
+        </div>
+        <div class="hero-art">
+          <div class="plate">
+            <div class="food food-a"></div>
+            <div class="food food-b"></div>
+            <div class="food food-c"></div>
+            <div class="food food-d"></div>
+          </div>
+          <div class="hero-badge"><strong>100%</strong><span>fresh<br>today</span></div>
+        </div>
+      </div>
+
+      <section id="menu" class="menu-section">
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow">OUR MENU</span>
+            <h2>Pick your favorite</h2>
+          </div>
+          <div class="menu-tools">
+            <label class="search-box">
+              <span>⌕</span>
+              <input id="menu-search" type="search" placeholder="Search dishes..." autocomplete="off">
+            </label>
+            <select id="sort-select" aria-label="Sort menu">
+              <option value="desc">Price: high to low</option>
+              <option value="asc">Price: low to high</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="category-pills" class="category-pills"></div>
+        <div id="menu-grid" class="menu-grid"></div>
+        <div class="pagination" id="menu-pagination"></div>
+      </section>
+    </section>
+
+    <section id="view-orders" class="view">
+      <div class="page-heading">
+        <div><span class="eyebrow">ACCOUNT</span><h2>My Orders</h2></div>
+        <button class="ghost-button" id="refresh-orders" type="button">Refresh</button>
+      </div>
+      <div id="orders-content" class="panel"></div>
+    </section>
+
+    <section id="view-profile" class="view">
+      <div class="page-heading">
+        <div><span class="eyebrow">ACCOUNT</span><h2>Customer profile</h2></div>
+      </div>
+      <div class="profile-layout">
+        <form id="profile-form" class="panel form-card">
+          <div class="form-title"><span class="icon-circle">◉</span><div><h3>Register / update profile</h3><p>Enter your customer ID to update an existing profile.</p></div></div>
+          <div class="form-grid">
+            <label>Customer ID<input id="profile-id" type="number" min="1" placeholder="Optional for registration"></label>
+            <label>First name<input id="profile-first" required></label>
+            <label>Last name<input id="profile-last" required></label>
+            <label>Phone<input id="profile-phone" required></label>
+            <label>Email<input id="profile-email" type="email"></label>
+            <label>Address<input id="profile-address"></label>
+          </div>
+          <div class="form-actions">
+            <button class="primary-button" type="submit">Save profile</button>
+            <button class="ghost-button" id="load-profile" type="button">Load by ID</button>
+          </div>
+        </form>
+        <div class="profile-tip">
+          <span>✦</span>
+          <h3>Before placing an order</h3>
+          <p>Your order endpoint expects a <strong>customerId</strong>. Register a customer first, then enter the ID here.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-admin" class="view">
+      <div class="page-heading">
+        <div><span class="eyebrow">MANAGEMENT</span><h2>Restaurant dashboard</h2></div>
+        <button class="ghost-button" id="refresh-dashboard" type="button">Refresh data</button>
+      </div>
+
+      <div class="stats-grid" id="stats-grid"></div>
+
+      <div class="admin-grid">
+        <section class="panel">
+          <div class="panel-heading"><div><span class="eyebrow">MENU</span><h3>Menu items</h3></div><button class="small-button" id="new-item">+ New item</button></div>
+          <div id="admin-menu" class="admin-list"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-heading"><div><span class="eyebrow">ORDERS</span><h3>Recent orders</h3></div><button class="small-button" id="refresh-admin-orders">Refresh</button></div>
+          <div id="admin-orders" class="admin-list"></div>
+        </section>
+      </div>
+
+      <div class="admin-grid">
+        <section class="panel">
+          <div class="panel-heading"><div><span class="eyebrow">CATEGORIES</span><h3>Categories</h3></div></div>
+          <form id="category-form" class="inline-form">
+            <input id="category-name" placeholder="Category name" required>
+            <input id="category-description" placeholder="Description">
+            <button class="small-button" type="submit">Add</button>
+          </form>
+          <div id="admin-categories" class="admin-list"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-heading"><div><span class="eyebrow">ANALYTICS</span><h3>Top sellers & loyal customers</h3></div></div>
+          <div id="analytics" class="analytics"></div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>Abdo's Kitchen</span>
+    <span>Spring Boot + MySQL + HTML/CSS/JS</span>
+  </footer>
+
+  <div id="cart-drawer" class="drawer-backdrop hidden">
+    <aside class="cart-drawer" role="dialog" aria-modal="true" aria-label="Shopping cart">
+      <div class="drawer-header"><div><span class="eyebrow">YOUR ORDER</span><h2>Cart</h2></div><button class="icon-button" id="close-cart" type="button">×</button></div>
+      <div id="cart-items" class="cart-items"></div>
+      <div class="cart-footer">
+        <div class="total-row"><span>Total</span><strong id="cart-total">EGP 0.00</strong></div>
+        <form id="checkout-form">
+          <label>Customer ID<input id="checkout-customer" type="number" min="1" required placeholder="e.g. 1"></label>
+          <label>Payment
+            <select id="checkout-payment">
+              <option value="CASH">Cash</option>
+              <option value="CARD">Card</option>
+            </select>
+          </label>
+          <button class="primary-button full" type="submit">Place order</button>
+        </form>
+      </div>
+    </aside>
+  </div>
+
+  <div id="item-modal" class="modal-backdrop hidden">
+    <div class="modal">
+      <div class="modal-heading"><h2 id="item-modal-title">New menu item</h2><button class="icon-button" id="close-item-modal" type="button">×</button></div>
+      <form id="item-form">
+        <input id="item-id" type="hidden">
+        <label>Item name<input id="item-name" required></label>
+        <label>Description<textarea id="item-description" rows="3"></textarea></label>
+        <div class="form-grid">
+          <label>Price<input id="item-price" type="number" min="0" step="0.01" required></label>
+          <label>Category<select id="item-category"></select></label>
+        </div>
+        <label class="switch-row"><input id="item-available" type="checkbox" checked><span>Available</span></label>
+        <button class="primary-button full" type="submit">Save item</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="order-modal" class="modal-backdrop hidden">
+    <div class="modal wide">
+      <div class="modal-heading"><h2>Order details</h2><button class="icon-button" id="close-order-modal" type="button">×</button></div>
+      <div id="order-detail-content"></div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

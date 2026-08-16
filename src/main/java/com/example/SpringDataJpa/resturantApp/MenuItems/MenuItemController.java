@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,6 +20,7 @@ import com.example.SpringDataJpa.resturantApp.Customer.CustomerResponse;
 import com.example.SpringDataJpa.resturantApp.MenuItems.Dto.MenuItemRequestDto;
 import com.example.SpringDataJpa.resturantApp.MenuItems.Dto.MenuItemResponseDto;
 
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/menuitem")
 public class MenuItemController {

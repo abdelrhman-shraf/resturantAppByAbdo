@@ -2,6 +2,7 @@ package com.example.SpringDataJpa.resturantApp.Categories;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.SpringDataJpa.resturantApp.Customer.CustomerRequest;
 import com.example.SpringDataJpa.resturantApp.Customer.CustomerResponse;
-
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/category")
 public class CategoryController {

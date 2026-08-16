@@ -45,11 +45,11 @@ public class CategoryService {
         return toResponse(category);
 
     }
-    public List<CategoryResponseDto> getCategoriesList(){
-        List <CategoryResponseDto> list=new ArrayList<>();
+    public List<CategoryResponse> getCategoriesList(){
+        List <CategoryResponse> list=new ArrayList<>();
         List<Category> cList=repo.findAll();
         for (Category category : cList) {
-            list.add(CategoryResponseDto.fromCategory(category));
+            list.add(toResponse(category));
         }
         return list;
 

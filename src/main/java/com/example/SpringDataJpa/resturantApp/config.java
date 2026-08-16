@@ -14,6 +14,9 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import jakarta.persistence.EntityManagerFactory;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
 @Configuration
 @ComponentScan(basePackages = "com.example.SpringDataJpa.resturantApp")
@@ -51,6 +54,18 @@ public DataSource restaurantDataSource(
     public PlatformTransactionManager PTM(
         @Qualifier("resturantEntityManagerFactory") EntityManagerFactory EMF){
             return new JpaTransactionManager(EMF);
+    }
+     /* fronted testing shit  */
+     @Bean
+    public CorsFilter corsFilter() {
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowCredentials(false); // set true if you use cookies/authorization
+        config.addAllowedOrigin("*");
+        config.addAllowedHeader("*");
+        config.addAllowedMethod("*");
+        source.registerCorsConfiguration("/**", config);
+        return new CorsFilter(source);
     }
 
 
