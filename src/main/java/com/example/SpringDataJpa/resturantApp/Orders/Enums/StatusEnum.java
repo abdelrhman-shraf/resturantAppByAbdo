@@ -1,5 +1,5 @@
 package com.example.SpringDataJpa.resturantApp.Orders.Enums;
-
+import java.util.Arrays;
 public enum StatusEnum {
      PENDING,
     CONFIRMED,
@@ -9,13 +9,23 @@ public enum StatusEnum {
     CANCELLED;
 
     public static StatusEnum fromString(String name){
-      try {
-          return StatusEnum.valueOf(name.toUpperCase());
-      } catch (Exception e) {
-        System.out.println("error happened while mapping String "+ name  + " to statusEnum for orders \n "+ e.getMessage());
-        return null;
-      }
-      
+     if (name == null || name.isBlank()) {
+        throw new IllegalArgumentException("Order status value cannot be null, empty, or blank.");
+    }
+        boolean exists=false;
+          for (StatusEnum value : values()) {
+            if (name.equals(value.toString())) {
+              exists=true;
+              break;
+            }
+          }
+          if (exists) {
+            return StatusEnum.valueOf(name.toUpperCase());
+          }else{
+             throw new IllegalArgumentException("Invalid status value: '" + name + "'. Allowed values are: " + Arrays.toString(values()));
+          }
+
+    
     }
     public boolean canTransactionTo(StatusEnum statusEnum){
       boolean isallowed=false;

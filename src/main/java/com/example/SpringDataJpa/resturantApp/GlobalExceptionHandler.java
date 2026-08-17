@@ -44,6 +44,22 @@ public class GlobalExceptionHandler {
         problem.setProperty("path", request.getRequestURI());
         return problem;
     }
+    @ExceptionHandler(IllegalStateException.class)
+      public ProblemDetail handleorderState(IllegalStateException ex, HttpServletRequest request) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+        problem.setTitle("BAD REQUEST ! ");
+        problem.setProperty("timestamp", Instant.now());
+        problem.setProperty("path", request.getRequestURI());
+        return problem;
+    }
+    @ExceptionHandler(IllegalArgumentException.class)
+      public ProblemDetail handleillegalArguments(IllegalArgumentException ex, HttpServletRequest request) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+        problem.setTitle("BAD REQUEST ! ");
+        problem.setProperty("timestamp", Instant.now());
+        problem.setProperty("path", request.getRequestURI());
+        return problem;
+    }
     
 
     @ExceptionHandler(DataIntegrityViolationException.class)

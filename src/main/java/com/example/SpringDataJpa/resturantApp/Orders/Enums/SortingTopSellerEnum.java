@@ -1,4 +1,6 @@
 package com.example.SpringDataJpa.resturantApp.Orders.Enums;
+import java.util.Arrays;
+
 
 public enum SortingTopSellerEnum {
     QUANTITY,TIMESORDERD,REVENUE;
@@ -17,7 +19,15 @@ public enum SortingTopSellerEnum {
         }
     }
     public static SortingTopSellerEnum fromString(String value){
-        if (value == null) return QUANTITY;
-        return SortingTopSellerEnum.valueOf(value.toUpperCase());
+      if (value == null || value.isBlank()) {
+        return QUANTITY; 
+    }
+    
+    return Arrays.stream(values())
+            .filter(enumValue -> enumValue.name().equalsIgnoreCase(value.trim()))
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException(
+                    "Invalid sorting option: '" + value + "'. Allowed values are: " + Arrays.toString(values())
+            ));
     }
 }

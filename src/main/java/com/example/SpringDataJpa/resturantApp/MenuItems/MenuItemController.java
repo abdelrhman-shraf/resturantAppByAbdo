@@ -29,7 +29,7 @@ public class MenuItemController {
         this.service=service;
     }
     public record AssignCategoryForMenuItem(
-        Integer id
+        Integer categoryId
     ) {
     }
     public record MenuItemSearchCriteria(
@@ -52,7 +52,8 @@ public class MenuItemController {
        
     }
     @PutMapping("/{id}")
-      public ResponseEntity<?> updateMenuItem(@PathVariable(required = true) int id,@RequestBody MenuItemRequestDto requestDto){
+      public ResponseEntity<?> updateMenuItem(@PathVariable(required = true) int id
+      ,@RequestBody MenuItemRequestDto requestDto){
        
             MenuItemResponseDto response=service.updateItem(requestDto,id);
             return ResponseEntity.status(HttpStatus.OK).body(response);
@@ -73,7 +74,8 @@ public class MenuItemController {
        
     }
     @GetMapping
-     public ResponseEntity<?> getall(@RequestParam(defaultValue = "0",required = false) Integer page ,@RequestParam(defaultValue = "10",required = false) Integer size){
+     public ResponseEntity<?> getall(@RequestParam(defaultValue = "0",required = false) Integer page
+      ,@RequestParam(defaultValue = "10",required = false) Integer size){
        
             Page <MenuItemResponseDto> response=service.getallMenuItems(page, size);
             return ResponseEntity.status(HttpStatus.OK).body(response);
@@ -81,17 +83,18 @@ public class MenuItemController {
     }
     @PatchMapping("/{id}")
     public ResponseEntity<?> assignCategory(@PathVariable int id,
-        @RequestBody AssignCategoryForMenuItem categoryId
+        @RequestBody(required = true) AssignCategoryForMenuItem categoryId
     ){
         
-            MenuItemResponseDto response=service.assignCategory(id, categoryId.id());
+            MenuItemResponseDto response=service.assignCategory(id, categoryId.categoryId());
             return ResponseEntity.status(HttpStatus.OK).body(response);
         
     }
     @GetMapping("/search")
       public ResponseEntity<?> searchMenuFilter(@RequestBody(required = true) MenuItemSearchCriteria criteria){
        
-           List <MenuItemResponseDto> response=service.searchMenu(criteria.categoryId(), criteria.minPrice(), criteria.maxPrice()
+           List <MenuItemResponseDto> response=service.searchMenu(criteria.categoryId(), criteria.minPrice()
+           , criteria.maxPrice()
            , criteria.name(), criteria.sortDirection());
             return ResponseEntity.status(HttpStatus.OK).body(response);
        

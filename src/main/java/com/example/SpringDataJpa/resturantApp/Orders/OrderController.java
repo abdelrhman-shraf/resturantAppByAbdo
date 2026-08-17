@@ -39,108 +39,70 @@ public class OrderController {
     }
     @PostMapping
         public ResponseEntity<?> addOrder(@RequestBody CreateOrderDto request){
-        try {
+        
             OrderResponseDto response=service.createOrder(request);
             
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("error happened while creating an order :( ");
-        }
+       
     }
     @PatchMapping("/cancel/{id}")
       public ResponseEntity<?> cancelOrder(@PathVariable Integer id){
-        try {
+        
             OrderResponseDto response=service.cancelOreder(id);
             
             return ResponseEntity.status(HttpStatus.OK).body(response);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error happened while canceling an order :( ");
-        }
+       
     }
     @PutMapping("/{id}")
-       public ResponseEntity<?> chanheStatus(@RequestParam(required = true) Integer id,@RequestBody(required = true) ChangeStatusRequestBody status){
-        try {
+       public ResponseEntity<?> changeStatus(@PathVariable(required = true) Integer id,@RequestBody(required = true) ChangeStatusRequestBody status){
+        
             OrderResponseDto response=service.changeStatus(id, StatusEnum.fromString(status.status()));
             
             return ResponseEntity.status(HttpStatus.OK).body(response);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error happened while changing status for an order :( ");
-        }
+       
     }
     @GetMapping("/{id}")
        public ResponseEntity<?> getOrderById(@PathVariable(required = true) Integer id){
-        try {
+       
             OrderInfoResponse response=service.getOrderById(id);
             
             return ResponseEntity.status(HttpStatus.OK).body(response);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error happened while getting order  :( ");
-        }
+      
     }
     @GetMapping
       public ResponseEntity<?> getAll(@RequestParam(defaultValue = "0",required = false) int page,@RequestParam(defaultValue ="5",required = false) int size){
-        try {
+        
             Page <OrderResponseDto> response=service.getAllOrders(page, size);
             
             return ResponseEntity.status(HttpStatus.OK).body(response);
-        }
-         catch (Exception e) {
-            System.out.println(e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error happened while loading all orders :( ");
-        }
+        
     }
   
     @GetMapping("/top-selling")
      public ResponseEntity<?> getTopSelling(@RequestParam(required = false,defaultValue = "TIMESORDERD") String orderBy){
-        try {
+        
             Page <TopSellingItemDto> response=service.topSelling(orderBy);
             return ResponseEntity.status(HttpStatus.OK).body(response);
-        }
-        catch(IllegalArgumentException e){
-            System.out.println(e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error happened while getting top seller :( ");
-        }
-         catch (Exception e) {
-            System.out.println(e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error happened while getting top seller :( ");
-        }
+       
 
     }
     @GetMapping("/revenue")
     public ResponseEntity<?> getRevenue(@RequestParam(required = false,defaultValue = "week") String duration){
-        try {
+        
             BigDecimal response=service.getRevenue(duration);
             return ResponseEntity.status(HttpStatus.OK).body(response);
-        }
-        catch(IllegalArgumentException e){
-            System.out.println(e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
-         catch (Exception e) {
-            System.out.println(e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
+        
+      
 
     }
     @GetMapping("/loyal")
     public ResponseEntity<?> getLoyalCustomers(@RequestParam(defaultValue = "3",required = false) Integer limit ,
     @RequestParam(defaultValue = "orders",required = false) String sort){
-        try {
+        
            List<MostLoyalCustomerProjection> response=service.getLoyalCustomers(limit, sort);
             return ResponseEntity.status(HttpStatus.OK).body(response);
-        }
-        catch(IllegalArgumentException e){
-            System.out.println(e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
-         catch (Exception e) {
-            System.out.println(e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
+        
+       
 
     }
 

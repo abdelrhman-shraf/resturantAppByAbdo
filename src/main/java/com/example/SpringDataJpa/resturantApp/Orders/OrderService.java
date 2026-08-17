@@ -1,31 +1,20 @@
 package com.example.SpringDataJpa.resturantApp.Orders;
-
 import java.math.BigDecimal;
-import java.security.Timestamp;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.temporal.TemporalAdjusters;
-import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
-
-import org.hibernate.grammars.hql.HqlParser.DayContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.ScrollPosition.Direction;
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.annotation.Transactional;
 import com.example.SpringDataJpa.resturantApp.CustomExceptions.ResourceNotFoundException;
 import com.example.SpringDataJpa.resturantApp.Customer.Customer;
 import com.example.SpringDataJpa.resturantApp.Customer.CustomerRepo;
@@ -44,10 +33,9 @@ import com.example.SpringDataJpa.resturantApp.Orders.dto.OrderDetailsRowsDto;
 import com.example.SpringDataJpa.resturantApp.Orders.dto.OrderInfoResponse;
 import com.example.SpringDataJpa.resturantApp.Orders.dto.OrderResponseDto;
 import com.example.SpringDataJpa.resturantApp.Orders.dto.TopSellingItemDto;
-
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 
+@Transactional(readOnly = true)
 @Service
 public class OrderService {
     
@@ -69,10 +57,14 @@ public class OrderService {
    @Transactional
    public OrderResponseDto createOrder(CreateOrderDto createOrderDto){
     Customer customer = customerRepo.findById(createOrderDto.customerId())
-    .orElseThrow(() -> new EntityNotFoundException("Customer not found with id: " + createOrderDto.customerId()));
+    .orElseThrow(() -> new ResourceNotFoundException("Customer",
+     "CustomerId", createOrderDto.customerId()));
+      // get each item id 
     List<Integer> menuItemIds =createOrderDto.orderedItems().stream()
     .map(OrderDetailsRequestDto::itemId).distinct().toList();
+    // map for each menu item and it's id 
     Map<Integer,MenuItem> menuItemsMap=new HashMap<>();
+
     List<MenuItem> allmenuItems=menuItemRepo.findAllById(menuItemIds);
     for (MenuItem menuItem : allmenuItems) {
       menuItemsMap.put(menuItem.getItemId(), menuItem);
@@ -80,7 +72,8 @@ public class OrderService {
 
     for (Integer id:menuItemIds) {
       if (!menuItemsMap.containsKey(id)) {
-         throw new EntityNotFoundException("menu item with id : " + id +" not found :( ");
+         throw new ResourceNotFoundException("Menu-Item",
+          "menu-Item's id", id);
       }
     }
     Order order=new Order();
@@ -106,7 +99,8 @@ public class OrderService {
    @Transactional
    public OrderResponseDto cancelOreder(Integer orderId ){
       Order order = repo.findById(orderId)
-      .orElseThrow(()-> new EntityNotFoundException("order with id : " + orderId + " not found"));
+      .orElseThrow(()->  new ResourceNotFoundException("Order",
+     "orderId", orderId));
       if (order.getStatus()==StatusEnum.DELIVERED || order.getStatus()==StatusEnum.READY) {
          throw new IllegalStateException("Cannot cancel an order that is already " + order.getStatus());
       }
@@ -119,7 +113,8 @@ public class OrderService {
    @Transactional
    public OrderResponseDto changeStatus(Integer orderId ,StatusEnum newState){
       Order order = repo.findById(orderId)
-      .orElseThrow(()-> new EntityNotFoundException("order with id : " + orderId + " not found"));
+      .orElseThrow(()->  new ResourceNotFoundException("Order",
+     "orderId", orderId));
       if (! order.getStatus().canTransactionTo(newState)) {
         throw new IllegalStateException("can't change state from : " + order.getStatus().toString() +" to : "+ newState.toString() );
 
@@ -127,12 +122,13 @@ public class OrderService {
        order.setStatus(newState);
       return toOrderResponseDto(order);
    }
-   
+   @Transactional
    public OrderInfoResponse getOrderById(int id){
       //load order 
       List<OrderDetailsRowsDto> rows = repo.getOrderDetails(id);
       if (rows.isEmpty()) {
-         throw new EntityNotFoundException("order with id:" +id +" not found");
+         throw  new ResourceNotFoundException("Order",
+     "orderId", id);
       }
       OrderDetailsRowsDto first=rows.get(0);
      
@@ -178,6 +174,7 @@ public class OrderService {
    }
    
    public Page<TopSellingItemDto> topSelling(String orderBy){
+     
       SortingTopSellerEnum sEnum=SortingTopSellerEnum.fromString(orderBy);
       Pageable pageable=PageRequest.of(0, 1,Sort.by(sEnum.getSortingColumn()).descending());
       return repo.getTopSelling(pageable);
@@ -185,7 +182,8 @@ public class OrderService {
    public BigDecimal getRevenue(String targetDuration){
       /*day , week , month */
       LocalDateTime date;
-      switch (targetDuration.toLowerCase()) {
+      if (! (targetDuration.isBlank() || targetDuration.isEmpty())) {
+          switch (targetDuration.toLowerCase()) {
          case "day":
             date=LocalDate.now().atStartOfDay();
             break;
@@ -196,22 +194,25 @@ public class OrderService {
          default:
             throw new IllegalArgumentException("INVALID DURATION : " + targetDuration + " .Expected 'day' or 'week' or 'month' .");
       };
+      }else{
+         date =LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY)).atStartOfDay();
+      }
+     
       return repo.getRevenue(date);
    }
    public List<MostLoyalCustomerProjection> getLoyalCustomers(int limit,String sort){
       if (limit<=0 || limit>25) {
          limit=3;
       }
-      if ( ! sort.isEmpty()) {
+      if ( ! (sort.isEmpty() || sort.isBlank())) {
       switch (sort.toLowerCase()) {
       case "amount": sort="totalAmount";
          break;
       case "orders": sort="numOrders";
    break;
       default:
-         System.out.println("no matching sort strategy entered (the default is by number of orders !)");
-         sort = "numOrders";
-         break;
+        throw new IllegalArgumentException("INVALID SORTING METHOD -> [" + sort +" ] ||  allowed methods are ( amount , orders)");
+         
    }
       }else{
          sort="numOrders";
