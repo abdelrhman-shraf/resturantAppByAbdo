@@ -1,5 +1,6 @@
 package com.example.SpringDataJpa.resturantApp.MenuItems;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -8,15 +9,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.example.SpringDataJpa.resturantApp.Customer.CustomerRequest;
-import com.example.SpringDataJpa.resturantApp.Customer.CustomerResponse;
 import com.example.SpringDataJpa.resturantApp.MenuItems.Dto.MenuItemRequestDto;
 import com.example.SpringDataJpa.resturantApp.MenuItems.Dto.MenuItemResponseDto;
 
@@ -28,30 +28,44 @@ public class MenuItemController {
     public MenuItemController( MenuItemService service){
         this.service=service;
     }
-    @PostMapping("/addmenuitem")
+    public record AssignCategoryForMenuItem(
+        Integer id
+    ) {
+    }
+    public record MenuItemSearchCriteria(
+    String name,
+    Integer categoryId,
+    BigDecimal minPrice,
+    BigDecimal maxPrice,
+    String sortDirection  // "asc" or "desc"
+) {
+    // Compact constructor to set defaults safely
+    public MenuItemSearchCriteria {
+        if (sortDirection == null || sortDirection.isBlank()) sortDirection = "desc";
+    }
+}
+    @PostMapping
       public ResponseEntity<?> addMenuItem(@RequestBody MenuItemRequestDto requestDto){
         try {
             MenuItemResponseDto response=service.addMenuItem(requestDto);
-            
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("error happened while adding menu item :( ");
         }
     }
-    @PutMapping("/update")
-      public ResponseEntity<?> updateMenuItem(@RequestBody MenuItemRequestDto requestDto,@RequestParam int id){
+    @PutMapping("/{id}")
+      public ResponseEntity<?> updateMenuItem(@PathVariable(required = true) int id,@RequestBody MenuItemRequestDto requestDto){
         try {
             MenuItemResponseDto response=service.updateItem(requestDto,id);
-            
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error happened while updating menu item :( ");
         }
     }
-    @DeleteMapping("/delete")
-       public ResponseEntity<?> delete(@RequestParam int id){
+    @DeleteMapping("/{id}")
+       public ResponseEntity<?> delete(@PathVariable(required = true) int id){
         try {
             service.deleteItem(id);
             return ResponseEntity.status(HttpStatus.OK).body("menu Item with id: " + id +" deleted succesfuly (: ");
@@ -60,8 +74,8 @@ public class MenuItemController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("error happened while deleting menu item :( ");
         }
     }
-    @GetMapping("/getbyid")
-      public ResponseEntity<?> getById(@RequestParam int id){
+    @GetMapping("/{id}")
+      public ResponseEntity<?> getById(@PathVariable(required = true) int id){
         try {
             MenuItemResponseDto response= service.getById(id);
             return ResponseEntity.status(HttpStatus.OK).body(response);
@@ -70,8 +84,8 @@ public class MenuItemController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error happened while loading menu item :( ");
         }
     }
-    @GetMapping("/getall")
-     public ResponseEntity<?> getall(@RequestParam(defaultValue = "0",required = false) Integer page ,@RequestParam(defaultValue = "5",required = false) Integer size){
+    @GetMapping
+     public ResponseEntity<?> getall(@RequestParam(defaultValue = "0",required = false) Integer page ,@RequestParam(defaultValue = "10",required = false) Integer size){
         try {
             Page <MenuItemResponseDto> response=service.getallMenuItems(page, size);
             return ResponseEntity.status(HttpStatus.OK).body(response);
@@ -80,10 +94,12 @@ public class MenuItemController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error happened while loading menu item :( ");
         }
     }
-    @PutMapping("/assigncategory")
-    public ResponseEntity<?> assignCategory(@RequestParam int menuItemId,@RequestParam(required = false) Integer categoryId){
+    @PatchMapping("/{id}")
+    public ResponseEntity<?> assignCategory(@PathVariable int id,
+        @RequestBody AssignCategoryForMenuItem categoryId
+    ){
         try {
-            MenuItemResponseDto response=service.assignCategory(menuItemId, categoryId);
+            MenuItemResponseDto response=service.assignCategory(id, categoryId.id());
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -91,11 +107,10 @@ public class MenuItemController {
         }
     }
     @GetMapping("/search")
-      public ResponseEntity<?> searchMenuFilter(@RequestParam(required = false) Integer categoryId,@RequestParam(required = false) Integer minPrice
-       ,@RequestParam(required = false) Integer maxPrice,@RequestParam(required = false) String name,
-        @RequestParam(required = false,defaultValue = "desc") String sortStrategy){
+      public ResponseEntity<?> searchMenuFilter(@RequestBody(required = true) MenuItemSearchCriteria criteria){
         try {
-           List <MenuItemResponseDto> response=service.searchMenu(categoryId, minPrice, maxPrice, name, sortStrategy);
+           List <MenuItemResponseDto> response=service.searchMenu(criteria.categoryId(), criteria.minPrice(), criteria.maxPrice()
+           , criteria.name(), criteria.sortDirection());
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (Exception e) {
             System.out.println(e.getMessage());

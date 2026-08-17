@@ -1,5 +1,7 @@
 package com.example.SpringDataJpa.resturantApp.MenuItems;
 
+import java.math.BigDecimal;
+
 import org.springframework.data.jpa.domain.Specification;
 
 public class MenuSearchSpecifications {
@@ -11,7 +13,7 @@ public class MenuSearchSpecifications {
             return builder.equal(root.get("category").get("categoryId"), category);
         };
     }
-    public static Specification<MenuItem> hasPriceRange(Integer minPrice , Integer maxPrice){
+    public static Specification<MenuItem> hasPriceRange(BigDecimal minPrice , BigDecimal maxPrice){
 
         return (root,query,builder)->{
             if (minPrice==null && maxPrice==null) {

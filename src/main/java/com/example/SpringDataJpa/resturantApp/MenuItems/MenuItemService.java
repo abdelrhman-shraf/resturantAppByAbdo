@@ -1,6 +1,7 @@
 package com.example.SpringDataJpa.resturantApp.MenuItems;
 
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,7 +92,7 @@ public class MenuItemService {
         return mapper.toResponseDto(menuItem);
 
     }
-    public List<MenuItemResponseDto> searchMenu(Integer categoryId,Integer minPrice,Integer maxPrice,String itemName,String sortMethod){
+    public List<MenuItemResponseDto> searchMenu(Integer categoryId,BigDecimal minPrice,BigDecimal maxPrice,String itemName,String sortMethod){
         Specification<MenuItem> spec=Specification.where(MenuSearchSpecifications.hasCategory(categoryId))
         .and(MenuSearchSpecifications.hasPriceRange(minPrice, maxPrice))
         .and(MenuSearchSpecifications.hasName(itemName));

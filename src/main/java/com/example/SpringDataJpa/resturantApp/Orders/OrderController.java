@@ -2,14 +2,14 @@ package com.example.SpringDataJpa.resturantApp.Orders;
 
 import java.math.BigDecimal;
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -33,7 +33,11 @@ public class OrderController {
     public OrderController(OrderService service){
         this.service=service;
     }
-    @PostMapping("/makeOrder")
+    public record ChangeStatusRequestBody(
+        String status
+    ) {
+    }
+    @PostMapping
         public ResponseEntity<?> addOrder(@RequestBody CreateOrderDto request){
         try {
             OrderResponseDto response=service.createOrder(request);
@@ -44,8 +48,8 @@ public class OrderController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("error happened while creating an order :( ");
         }
     }
-    @PutMapping("/cancel")
-      public ResponseEntity<?> cancelOrder(@RequestParam Integer id){
+    @PatchMapping("/cancel/{id}")
+      public ResponseEntity<?> cancelOrder(@PathVariable Integer id){
         try {
             OrderResponseDto response=service.cancelOreder(id);
             
@@ -55,10 +59,10 @@ public class OrderController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error happened while canceling an order :( ");
         }
     }
-    @PutMapping("/changestatus")
-       public ResponseEntity<?> chanheStatus(@RequestParam(required = true) Integer id,@RequestParam(required = true) String statusEnum){
+    @PutMapping("/{id}")
+       public ResponseEntity<?> chanheStatus(@RequestParam(required = true) Integer id,@RequestBody(required = true) ChangeStatusRequestBody status){
         try {
-            OrderResponseDto response=service.changeStatus(id, StatusEnum.fromString(statusEnum));
+            OrderResponseDto response=service.changeStatus(id, StatusEnum.fromString(status.status()));
             
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (Exception e) {
@@ -66,8 +70,8 @@ public class OrderController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error happened while changing status for an order :( ");
         }
     }
-    @GetMapping("/get_order_by_id")
-       public ResponseEntity<?> getOrderById(@RequestParam(required = true) Integer id){
+    @GetMapping("/{id}")
+       public ResponseEntity<?> getOrderById(@PathVariable(required = true) Integer id){
         try {
             OrderInfoResponse response=service.getOrderById(id);
             
@@ -77,7 +81,7 @@ public class OrderController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error happened while getting order  :( ");
         }
     }
-    @GetMapping("/getall")
+    @GetMapping
       public ResponseEntity<?> getAll(@RequestParam(defaultValue = "0",required = false) int page,@RequestParam(defaultValue ="5",required = false) int size){
         try {
             Page <OrderResponseDto> response=service.getAllOrders(page, size);
@@ -89,20 +93,8 @@ public class OrderController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error happened while loading all orders :( ");
         }
     }
-    @GetMapping("/customer/history")
-     public ResponseEntity<?> getCustomerOrdersHistory(@RequestParam(defaultValue = "0",required = false) int page,
-     @RequestParam(defaultValue ="5",required = false) int size,@RequestParam(required = true) int customerId){
-        try {
-            Page <OrderResponseDto> response=service.CustomerOrdersHistory(customerId, page, size);
-            
-            return ResponseEntity.status(HttpStatus.OK).body(response);
-        }
-         catch (Exception e) {
-            System.out.println(e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error happened while loading customer orders :( ");
-        }
-    }
-    @GetMapping("/get_top_selling")
+  
+    @GetMapping("/top-selling")
      public ResponseEntity<?> getTopSelling(@RequestParam(required = false,defaultValue = "TIMESORDERD") String orderBy){
         try {
             Page <TopSellingItemDto> response=service.topSelling(orderBy);
