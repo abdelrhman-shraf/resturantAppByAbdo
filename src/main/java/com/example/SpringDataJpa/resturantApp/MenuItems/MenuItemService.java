@@ -4,6 +4,7 @@ package com.example.SpringDataJpa.resturantApp.MenuItems;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -12,17 +13,19 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.SpringDataJpa.resturantApp.Categories.Category;
 import com.example.SpringDataJpa.resturantApp.Categories.CategoryRepo;
+import com.example.SpringDataJpa.resturantApp.CustomExceptions.BadRequestException;
+import com.example.SpringDataJpa.resturantApp.CustomExceptions.ResourceNotFoundException;
 import com.example.SpringDataJpa.resturantApp.MenuItems.Dto.MenuItemRequestDto;
 import com.example.SpringDataJpa.resturantApp.MenuItems.Dto.MenuItemResponseDto;
 
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
+
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 public class MenuItemService {
    private MenuItemRepo repo;
     private CategoryRepo categoryRepo;
@@ -33,13 +36,13 @@ public class MenuItemService {
         this.categoryRepo=categoryRepo;
         this.mapper=mapper;
     }
+    @Transactional
     public MenuItemResponseDto addMenuItem(MenuItemRequestDto request){
         MenuItem menuItem;
         Category category=null;
         if (request.categoryId()!=null) {
             category=categoryRepo.findById(request.categoryId())
-            .orElseThrow(()-> new EntityNotFoundException("Category with id:  " + request.categoryId() + " not found ") );
-
+            .orElseThrow(()-> new ResourceNotFoundException("Category", "CategoryId", request.categoryId()) );
         }
         menuItem=mapper.toEntity(request);
 
@@ -47,31 +50,33 @@ public class MenuItemService {
          MenuItem saved=repo.save(menuItem);
          return mapper.toResponseDto(saved);
     }
+    @Transactional
     public MenuItemResponseDto updateItem(MenuItemRequestDto request,int id){
         MenuItem menuItem=repo.findById(id).
-        orElseThrow(()-> new EntityNotFoundException("menu item with :  " + id + " not found ") );
+        orElseThrow(()-> new ResourceNotFoundException("MenuItem", "MenuItemId", id) );
         mapper.updateEntityFromDto(request, menuItem);
        if (request.categoryId() != null) {
         boolean categoryChanged = menuItem.getCategory() == null 
-                || !request.categoryId().equals(menuItem.getCategory().getCategoryId());
+            || !request.categoryId().equals(menuItem.getCategory().getCategoryId());
 
         if (categoryChanged) {
             Category category = categoryRepo.findById(request.categoryId())
-                    .orElseThrow(() -> new EntityNotFoundException("Category with id: " + request.categoryId() + " not found"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Category", "CategoryId", request.categoryId()));
             menuItem.setCategory(category);
         }
     }
         return mapper.toResponseDto(menuItem);
 
     }
+    @Transactional
     public void deleteItem(int id){
          MenuItem menuItem=repo.findById(id).
-        orElseThrow(()-> new EntityNotFoundException("menu item with :  " + id + " not found ") );
+        orElseThrow(()-> new ResourceNotFoundException("MenuItem", "MenuItemId", id));
         repo.delete(menuItem);
     }
     public MenuItemResponseDto getById(int id){
          MenuItem menuItem=repo.findById(id).
-        orElseThrow(()-> new EntityNotFoundException("menu item with :  " + id + " not found ") );
+        orElseThrow(()-> new ResourceNotFoundException("MenuItem", "MenuItemId", id) );
         return mapper.toResponseDto(menuItem);
     }
     public Page <MenuItemResponseDto> getallMenuItems(int page , int size){
@@ -80,19 +85,23 @@ public class MenuItemService {
         Page<MenuItem> menuItemPage = repo.findAll(pageable);
         return menuItemPage.map(mapper::toResponseDto);
     }
+    @Transactional
     public MenuItemResponseDto assignCategory(int menuItemId,Integer categoryId){
         Category category=null;
         if (categoryId !=null) {
             category=categoryRepo.findById(categoryId)
-            .orElseThrow(() -> new EntityNotFoundException("Category with id: " + categoryId + " not found"));;
+            .orElseThrow(() -> new ResourceNotFoundException("Category", "CategoryId", categoryId));
         }
          
-        MenuItem menuItem = repo.findById(menuItemId).orElseThrow(()-> new EntityNotFoundException("menu item with :  " + menuItemId + " not found ") );
+        MenuItem menuItem = repo.findById(menuItemId).orElseThrow(()-> new ResourceNotFoundException("MenuItem", "MenuItemId", menuItemId));
         menuItem.setCategory(category);
         return mapper.toResponseDto(menuItem);
 
     }
     public List<MenuItemResponseDto> searchMenu(Integer categoryId,BigDecimal minPrice,BigDecimal maxPrice,String itemName,String sortMethod){
+        if (minPrice != null && maxPrice != null && minPrice.compareTo(maxPrice) > 0) {
+        throw new BadRequestException("minPrice cannot be greater than maxPrice");
+    }
         Specification<MenuItem> spec=Specification.where(MenuSearchSpecifications.hasCategory(categoryId))
         .and(MenuSearchSpecifications.hasPriceRange(minPrice, maxPrice))
         .and(MenuSearchSpecifications.hasName(itemName));

@@ -4,13 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.SpringDataJpa.resturantApp.CustomExceptions.DuplicateResourceException;
 import com.example.SpringDataJpa.resturantApp.CustomExceptions.ResourceNotFoundException;
 
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
-@Transactional
+
+@Transactional(readOnly = true)
 @Service
 public class CategoryService {
     private CategoryRepo repo;
@@ -25,6 +26,7 @@ public class CategoryService {
     private CategoryResponse toResponse(Category category){
         return new CategoryResponse(category.getCategoryId(), category.getCategoryName(), category.getDescription());
     }
+    @Transactional
     public CategoryResponse createCategory(CategoryRequest request){
         if (repo.existsByCategoryName(request.getCategoryName())) {
             throw new DuplicateResourceException("Category", "categoryName", request.getCategoryName());
@@ -35,6 +37,7 @@ public class CategoryService {
         Category saved= repo.save(category);
         return toResponse(saved);
     }
+    @Transactional
     public CategoryResponse updateName(String name , int id){
         
         //category.setCategoryName(name);
@@ -44,6 +47,7 @@ public class CategoryService {
         return toResponse(category);
 
     }
+    @Transactional
     public CategoryResponse deleteCategory(int id){
          Category category = repo.findById(id)
         .orElseThrow(()-> new ResourceNotFoundException("Category", "CategoryId", id));

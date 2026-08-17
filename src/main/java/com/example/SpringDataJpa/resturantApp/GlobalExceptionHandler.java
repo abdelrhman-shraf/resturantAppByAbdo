@@ -9,6 +9,7 @@ import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.example.SpringDataJpa.resturantApp.CustomExceptions.BadRequestException;
 import com.example.SpringDataJpa.resturantApp.CustomExceptions.DuplicateResourceException;
 import com.example.SpringDataJpa.resturantApp.CustomExceptions.ResourceNotFoundException;
 
@@ -34,6 +35,14 @@ public class GlobalExceptionHandler {
         problem.setProperty("path", request.getRequestURI());
         return problem;
         
+    }
+    @ExceptionHandler(BadRequestException.class)
+      public ProblemDetail handleBadRequest(BadRequestException ex, HttpServletRequest request) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+        problem.setTitle("BAD REQUEST ! ");
+        problem.setProperty("timestamp", Instant.now());
+        problem.setProperty("path", request.getRequestURI());
+        return problem;
     }
     
 

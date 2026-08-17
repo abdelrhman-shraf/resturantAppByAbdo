@@ -46,76 +46,55 @@ public class MenuItemController {
 }
     @PostMapping
       public ResponseEntity<?> addMenuItem(@RequestBody MenuItemRequestDto requestDto){
-        try {
+        
             MenuItemResponseDto response=service.addMenuItem(requestDto);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("error happened while adding menu item :( ");
-        }
+       
     }
     @PutMapping("/{id}")
       public ResponseEntity<?> updateMenuItem(@PathVariable(required = true) int id,@RequestBody MenuItemRequestDto requestDto){
-        try {
+       
             MenuItemResponseDto response=service.updateItem(requestDto,id);
             return ResponseEntity.status(HttpStatus.OK).body(response);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error happened while updating menu item :( ");
-        }
+      
     }
     @DeleteMapping("/{id}")
        public ResponseEntity<?> delete(@PathVariable(required = true) int id){
-        try {
+        
             service.deleteItem(id);
             return ResponseEntity.status(HttpStatus.OK).body("menu Item with id: " + id +" deleted succesfuly (: ");
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("error happened while deleting menu item :( ");
-        }
+      
     }
     @GetMapping("/{id}")
       public ResponseEntity<?> getById(@PathVariable(required = true) int id){
-        try {
+        
             MenuItemResponseDto response= service.getById(id);
             return ResponseEntity.status(HttpStatus.OK).body(response);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error happened while loading menu item :( ");
-        }
+       
     }
     @GetMapping
      public ResponseEntity<?> getall(@RequestParam(defaultValue = "0",required = false) Integer page ,@RequestParam(defaultValue = "10",required = false) Integer size){
-        try {
+       
             Page <MenuItemResponseDto> response=service.getallMenuItems(page, size);
             return ResponseEntity.status(HttpStatus.OK).body(response);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error happened while loading menu item :( ");
-        }
+       
     }
     @PatchMapping("/{id}")
     public ResponseEntity<?> assignCategory(@PathVariable int id,
         @RequestBody AssignCategoryForMenuItem categoryId
     ){
-        try {
+        
             MenuItemResponseDto response=service.assignCategory(id, categoryId.id());
             return ResponseEntity.status(HttpStatus.OK).body(response);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error happened while Assigning category to menu item :( ");
-        }
+        
     }
     @GetMapping("/search")
       public ResponseEntity<?> searchMenuFilter(@RequestBody(required = true) MenuItemSearchCriteria criteria){
-        try {
+       
            List <MenuItemResponseDto> response=service.searchMenu(criteria.categoryId(), criteria.minPrice(), criteria.maxPrice()
            , criteria.name(), criteria.sortDirection());
             return ResponseEntity.status(HttpStatus.OK).body(response);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error happened while searching for menu item :( ");
-        }
+       
     }
 
 
