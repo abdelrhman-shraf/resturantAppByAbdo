@@ -12,5 +12,6 @@ public interface CustomerRepo extends JpaRepository<Customer,Integer> {
     @Query(nativeQuery = true,value = "SELECT * FROM customers")
    public Page<Customer> findAll(Pageable pageable);
    public Optional<Customer> findById(int id);
+   public boolean existsByEmail(String email);
    
 }

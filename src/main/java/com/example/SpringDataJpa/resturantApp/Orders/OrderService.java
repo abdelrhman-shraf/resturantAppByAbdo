@@ -26,6 +26,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.ScrollPosition.Direction;
 import org.springframework.stereotype.Service;
 
+import com.example.SpringDataJpa.resturantApp.CustomExceptions.ResourceNotFoundException;
 import com.example.SpringDataJpa.resturantApp.Customer.Customer;
 import com.example.SpringDataJpa.resturantApp.Customer.CustomerRepo;
 import com.example.SpringDataJpa.resturantApp.MenuItems.MenuItem;
@@ -168,6 +169,9 @@ public class OrderService {
    }
    
    public Page<OrderResponseDto> CustomerOrdersHistory(int customerId,int page,int size){
+      if (! repo.existsById(customerId)) {
+         throw new ResourceNotFoundException("customer", "customerId", customerId);
+      }
       Pageable pageable =PageRequest.of(page, size,Sort.by("orderDatetime").descending());
       Page<OrderResponseDto> orders=repo.getCustomerOrderHistory(customerId, pageable);
       return orders;

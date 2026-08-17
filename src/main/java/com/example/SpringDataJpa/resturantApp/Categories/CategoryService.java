@@ -5,6 +5,9 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.example.SpringDataJpa.resturantApp.CustomExceptions.DuplicateResourceException;
+import com.example.SpringDataJpa.resturantApp.CustomExceptions.ResourceNotFoundException;
+
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 @Transactional
@@ -23,6 +26,9 @@ public class CategoryService {
         return new CategoryResponse(category.getCategoryId(), category.getCategoryName(), category.getDescription());
     }
     public CategoryResponse createCategory(CategoryRequest request){
+        if (repo.existsByCategoryName(request.getCategoryName())) {
+            throw new DuplicateResourceException("Category", "categoryName", request.getCategoryName());
+        }
         Category category=new Category();
         category.setCategoryName(request.getCategoryName());
         category.setDescription(request.getDescription());
@@ -34,13 +40,13 @@ public class CategoryService {
         //category.setCategoryName(name);
         repo.updateName(name, id);
         Category category = repo.findById(id)
-        .orElseThrow(()-> new EntityNotFoundException("Ctegory not found for id " + id));
+        .orElseThrow(()-> new ResourceNotFoundException("Category", "CategoryId", id));
         return toResponse(category);
 
     }
     public CategoryResponse deleteCategory(int id){
          Category category = repo.findById(id)
-        .orElseThrow(()-> new EntityNotFoundException("Ctegory not found for id " + id));
+        .orElseThrow(()-> new ResourceNotFoundException("Category", "CategoryId", id));
         repo.deleteById(id);
         return toResponse(category);
 
@@ -52,6 +58,5 @@ public class CategoryService {
             list.add(toResponse(category));
         }
         return list;
-
     }
 }
