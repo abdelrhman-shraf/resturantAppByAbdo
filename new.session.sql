@@ -99,7 +99,7 @@ CREATE TABLE `app_role` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
-
+select * from app_role;
 SHOW CREATE TABLE user_roles;
 CREATE TABLE `user_roles` (
   `user_id` bigint NOT NULL,
@@ -109,5 +109,7 @@ CREATE TABLE `user_roles` (
   CONSTRAINT `fk_user_roles_role` FOREIGN KEY (`role_id`) REFERENCES `app_role` (`id`) ON DELETE CASCADE,
   CONSTRAINT `fk_user_roles_user` FOREIGN KEY (`user_id`) REFERENCES `app_user` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
-
+insert into app_role(name) values("ROLE_CUSTOMER");
+SELECT * FROM app_user;
+SELECT * FROM user_roles;
 

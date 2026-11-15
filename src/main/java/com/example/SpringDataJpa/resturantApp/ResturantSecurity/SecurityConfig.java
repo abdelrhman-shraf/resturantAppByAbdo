@@ -12,6 +12,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 
 import com.example.SpringDataJpa.resturantApp.ResturantSecurity.AppUser.AppUserDetailsService;
@@ -34,6 +36,24 @@ public class SecurityConfig {
     public  AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception{
         return  configuration.getAuthenticationManager();
     }
+    @Bean
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+
+        JwtGrantedAuthoritiesConverter authoritiesConverter =
+            new JwtGrantedAuthoritiesConverter();
+
+        authoritiesConverter.setAuthoritiesClaimName("roles");
+        authoritiesConverter.setAuthorityPrefix("");
+
+        JwtAuthenticationConverter converter =
+            new JwtAuthenticationConverter();
+
+        converter.setJwtGrantedAuthoritiesConverter(
+            authoritiesConverter
+        );
+
+        return converter;
+    }
     @Bean 
     public  SecurityFilterChain filterChain (HttpSecurity httpSecurity ,
          DaoAuthenticationProvider daoAuthenticationProvider){
@@ -42,7 +62,13 @@ public class SecurityConfig {
             authenticationProvider(daoAuthenticationProvider).
             authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.POST ,"/customers/register").permitAll()
             .anyRequest().authenticated() 
-             ).httpBasic(Customizer.withDefaults())
+             ).oauth2ResourceServer(oauth2 -> oauth2
+                .jwt(jwt -> jwt
+                    .jwtAuthenticationConverter(
+                        jwtAuthenticationConverter()
+                    )
+                )
+            ).httpBasic(Customizer.withDefaults())
              .sessionManagement(session ->
                 session.sessionCreationPolicy(
                     SessionCreationPolicy.STATELESS));

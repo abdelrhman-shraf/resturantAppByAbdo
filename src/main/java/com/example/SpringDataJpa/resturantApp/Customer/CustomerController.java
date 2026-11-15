@@ -27,7 +27,7 @@ public class CustomerController {
         this.service=service;
         this.orderService=orderService;
     }
-    @PostMapping
+    @PostMapping("register")
     public ResponseEntity<?> registerCustomer(@RequestBody(required = true) CustomerRequest request){
        
             CustomerResponse response=service.RegisterCustomer(request);

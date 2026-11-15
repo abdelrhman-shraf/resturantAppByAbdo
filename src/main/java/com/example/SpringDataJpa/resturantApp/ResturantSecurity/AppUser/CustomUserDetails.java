@@ -1,11 +1,14 @@
 package com.example.SpringDataJpa.resturantApp.ResturantSecurity.AppUser;
 
 import java.util.Collection;
+import java.util.Set;
 
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import com.example.SpringDataJpa.resturantApp.ResturantSecurity.appRole.AppRole;
 
 public class CustomUserDetails  implements UserDetails  {
     private final Appuser appuser;
@@ -16,7 +19,7 @@ public class CustomUserDetails  implements UserDetails  {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return  appuser.getRoles().stream().
         map(role ->
-             new SimpleGrantedAuthority( "ROLE_" +role.getName())).
+             new SimpleGrantedAuthority( role.getName())).
             toList();
     }
 
@@ -48,9 +51,9 @@ public class CustomUserDetails  implements UserDetails  {
     public boolean isEnabled() {
         return appuser.isEnabled();
     }
-
     public Appuser getAppUser() {
         return appuser;
     }
+
     
 }
