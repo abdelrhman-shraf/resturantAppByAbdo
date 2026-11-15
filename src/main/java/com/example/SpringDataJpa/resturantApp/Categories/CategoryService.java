@@ -6,6 +6,8 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.SpringDataJpa.resturantApp.Categories.Dto.CategoryRequest;
+import com.example.SpringDataJpa.resturantApp.Categories.Dto.CategoryResponse;
 import com.example.SpringDataJpa.resturantApp.CustomExceptions.DuplicateResourceException;
 import com.example.SpringDataJpa.resturantApp.CustomExceptions.ResourceNotFoundException;
 

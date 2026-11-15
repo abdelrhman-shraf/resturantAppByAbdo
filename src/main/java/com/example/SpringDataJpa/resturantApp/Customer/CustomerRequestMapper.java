@@ -4,7 +4,7 @@ import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
-
+import com.example.SpringDataJpa.resturantApp.Customer.Dto.CustomerRequest;
 @Mapper(componentModel = "spring")
 public interface CustomerRequestMapper {
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

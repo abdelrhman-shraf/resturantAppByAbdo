@@ -1,4 +1,4 @@
-package com.example.SpringDataJpa.resturantApp.Customer;
+package com.example.SpringDataJpa.resturantApp.Customer.Dto;
 
 public class CustomerRequest {
   

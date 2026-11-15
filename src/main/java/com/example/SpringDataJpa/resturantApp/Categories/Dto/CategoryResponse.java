@@ -1,4 +1,4 @@
-package com.example.SpringDataJpa.resturantApp.Categories;
+package com.example.SpringDataJpa.resturantApp.Categories.Dto;
 
 
 

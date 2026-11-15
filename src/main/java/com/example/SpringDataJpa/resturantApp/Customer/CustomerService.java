@@ -12,6 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.SpringDataJpa.resturantApp.CustomExceptions.DuplicateResourceException;
 import com.example.SpringDataJpa.resturantApp.CustomExceptions.ResourceNotFoundException;
+import com.example.SpringDataJpa.resturantApp.Customer.Dto.CustomerRequest;
+import com.example.SpringDataJpa.resturantApp.Customer.Dto.CustomerResponse;
 
 
 @Service

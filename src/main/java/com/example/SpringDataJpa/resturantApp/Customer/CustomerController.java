@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.SpringDataJpa.resturantApp.Customer.Dto.CustomerRequest;
+import com.example.SpringDataJpa.resturantApp.Customer.Dto.CustomerResponse;
 import com.example.SpringDataJpa.resturantApp.Orders.OrderService;
 import com.example.SpringDataJpa.resturantApp.Orders.dto.OrderResponseDto;
 @CrossOrigin(origins = "*")
