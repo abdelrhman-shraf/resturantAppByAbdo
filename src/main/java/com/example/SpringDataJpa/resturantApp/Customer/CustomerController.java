@@ -2,6 +2,7 @@ package com.example.SpringDataJpa.resturantApp.Customer;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,6 +35,7 @@ public class CustomerController {
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         
     }
+   @PreAuthorize ("hasRole('ADMIN')")
     @GetMapping
      public ResponseEntity<?> getallCustomers(@RequestParam(required = false ,defaultValue = "0") int page
      ,@RequestParam(required = false , defaultValue = "10") int size){

@@ -60,7 +60,7 @@ public class SecurityConfig {
 
             httpSecurity.csrf(csrf -> csrf.disable()).
             authenticationProvider(daoAuthenticationProvider).
-            authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.POST ,"/customers/register").permitAll()
+            authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.POST ,"/auth/login").permitAll()
             .anyRequest().authenticated() 
              ).oauth2ResourceServer(oauth2 -> oauth2
                 .jwt(jwt -> jwt
