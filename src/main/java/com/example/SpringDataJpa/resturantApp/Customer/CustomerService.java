@@ -16,7 +16,9 @@ import com.example.SpringDataJpa.resturantApp.CustomExceptions.DuplicateResource
 import com.example.SpringDataJpa.resturantApp.CustomExceptions.ResourceNotFoundException;
 import com.example.SpringDataJpa.resturantApp.Customer.Dto.CustomerRequest;
 import com.example.SpringDataJpa.resturantApp.Customer.Dto.CustomerResponse;
+import com.example.SpringDataJpa.resturantApp.ResturantSecurity.AppUser.AppUserDetailsService;
 import com.example.SpringDataJpa.resturantApp.ResturantSecurity.AppUser.Appuser;
+import com.example.SpringDataJpa.resturantApp.ResturantSecurity.AppUser.CustomUserDetails;
 import com.example.SpringDataJpa.resturantApp.ResturantSecurity.AppUser.UserRepository;
 import com.example.SpringDataJpa.resturantApp.ResturantSecurity.appRole.AppRole;
 import com.example.SpringDataJpa.resturantApp.ResturantSecurity.appRole.AppRoleRepository;
@@ -30,15 +32,18 @@ public class CustomerService{
    private  PasswordEncoder passwordEncoder;
    private AppRoleRepository appRoleRepository;
    private  UserRepository userRepository;
+   private AppUserDetailsService userService;
    
 @Autowired
 public CustomerService(CustomerRepo repo,CustomerRequestMapper requestmapper,
-    PasswordEncoder passwordEncoder,AppRoleRepository appRoleRepository, UserRepository userRepository){
+    PasswordEncoder passwordEncoder,AppRoleRepository appRoleRepository,
+     UserRepository userRepository,AppUserDetailsService userService){
     this.repo=repo;
     this.requestmapper=requestmapper;
     this.passwordEncoder=passwordEncoder;
     this.appRoleRepository=appRoleRepository;
     this.userRepository=userRepository;
+    this.userService=userService;
 }
 private CustomerResponse toCustomerResponse(Customer c){
     return new CustomerResponse(c.getCustomerId(),c.getFirstName(),c.getLastName()
@@ -88,6 +93,11 @@ public CustomerResponse getById(int id){
     .orElseThrow(()-> new ResourceNotFoundException("customer", "customerId", id));;
     return toCustomerResponse(c);
 }
+@Transactional 
+public  CustomerResponse getCustomer(Integer userId){
+   Appuser user=userService.loadUserById(userId);
+   return getById(user.getCustomerId());
+}
 @Transactional
 public CustomerResponse updateProfile(int id,CustomerRequest request){
 Customer customer=repo.findById(id)
@@ -95,6 +105,22 @@ Customer customer=repo.findById(id)
     requestmapper.updateCustomerFromDto(request,customer);
     Customer saved=repo.save(customer);
     return toCustomerResponse(saved);
+}
+@Transactional 
+public void deleteMyAccount(Integer userId) {
+Appuser user = userRepository.findById(userId).orElseThrow(()->
+ new EntityNotFoundException());
+ Integer customerId = user.getCustomerId();
+
+    if (customerId == null) {
+        throw new EntityNotFoundException("Customer not associated with this user");
+    }
+      Customer customer = repo.findById(customerId)
+            .orElseThrow(() ->
+                    new EntityNotFoundException("Customer not found"));
+ repo.delete(customer);
+ userRepository.delete(user);
+ 
 }
 
 

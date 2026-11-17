@@ -14,9 +14,15 @@ public class AppUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Appuser appuser ;
         appuser= userRepository.findByUsername(username)
-        .orElseThrow( ()-> new UsernameNotFoundException("User with  username :  " + username +"doesn't exist"));
+        .orElseThrow( ()-> new UsernameNotFoundException("User with  username :  " + username +" doesn't exist"));
         return  new CustomUserDetails(appuser);
 
+    }
+    public  Appuser loadUserById(Integer id){
+        Appuser user;
+        user=userRepository.
+        findById(id).orElseThrow( ()-> new UsernameNotFoundException("User with  id :  " + id +" doesn't exist"));
+        return  user;
     }
 
 }
