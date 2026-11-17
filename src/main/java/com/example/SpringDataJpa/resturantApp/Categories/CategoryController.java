@@ -1,6 +1,7 @@
 package com.example.SpringDataJpa.resturantApp.Categories;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,13 +28,14 @@ public class CategoryController {
         String name
     ) {
     }
-    
+    @PreAuthorize ("hasRole('ADMIN')")
     @PostMapping
       public ResponseEntity<?> createCategory(@RequestBody(required = true) CategoryRequest request){
             CategoryResponse response=service.createCategory(request);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         
     }
+    @PreAuthorize ("hasRole('ADMIN')")
     @PatchMapping("/{id}")
        public ResponseEntity<?> changeName(@PathVariable(required = true) int id,
        @RequestBody(required = true) RenameCategoryRequest renameCategoryRequest){
@@ -42,6 +44,7 @@ public class CategoryController {
             return ResponseEntity.status(HttpStatus.OK).body(response);
        
     }
+    @PreAuthorize ("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
         public ResponseEntity<?> deleteCategory(@PathVariable(required = true) int id){
       
@@ -49,7 +52,7 @@ public class CategoryController {
             return ResponseEntity.status(HttpStatus.OK).body(response);
       
     }
-    
+    @PreAuthorize ("permitAll()")
     @GetMapping    
        public ResponseEntity<?> getall(){
     

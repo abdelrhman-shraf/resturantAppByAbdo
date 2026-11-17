@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,6 +45,7 @@ public class MenuItemController {
         if (sortDirection == null || sortDirection.isBlank()) sortDirection = "desc";
     }
 }
+    @PreAuthorize ("hasRole('ADMIN')")
     @PostMapping
       public ResponseEntity<?> addMenuItem(@RequestBody MenuItemRequestDto requestDto){
         
@@ -51,6 +53,7 @@ public class MenuItemController {
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
        
     }
+    @PreAuthorize ("hasRole('ADMIN')")
     @PutMapping("/{id}")
       public ResponseEntity<?> updateMenuItem(@PathVariable(required = true) int id
       ,@RequestBody MenuItemRequestDto requestDto){
@@ -59,6 +62,7 @@ public class MenuItemController {
             return ResponseEntity.status(HttpStatus.OK).body(response);
       
     }
+    @PreAuthorize ("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
        public ResponseEntity<?> delete(@PathVariable(required = true) int id){
         
@@ -66,6 +70,7 @@ public class MenuItemController {
             return ResponseEntity.status(HttpStatus.OK).body("menu Item with id: " + id +" deleted succesfuly (: ");
       
     }
+    @PreAuthorize ("permitAll()")
     @GetMapping("/{id}")
       public ResponseEntity<?> getById(@PathVariable(required = true) int id){
         
@@ -73,6 +78,7 @@ public class MenuItemController {
             return ResponseEntity.status(HttpStatus.OK).body(response);
        
     }
+    @PreAuthorize ("permitAll()")
     @GetMapping
      public ResponseEntity<?> getall(@RequestParam(defaultValue = "0",required = false) Integer page
       ,@RequestParam(defaultValue = "10",required = false) Integer size){
@@ -81,6 +87,7 @@ public class MenuItemController {
             return ResponseEntity.status(HttpStatus.OK).body(response);
        
     }
+    @PreAuthorize ("hasRole('ADMIN')")
     @PatchMapping("/{id}")
     public ResponseEntity<?> assignCategory(@PathVariable int id,
         @RequestBody(required = true) AssignCategoryForMenuItem categoryId
@@ -90,7 +97,8 @@ public class MenuItemController {
             return ResponseEntity.status(HttpStatus.OK).body(response);
         
     }
-    @GetMapping("/search")
+    @PreAuthorize ("permitAll()")
+    @PostMapping ("/search")
       public ResponseEntity<?> searchMenuFilter(@RequestBody(required = true) MenuItemSearchCriteria criteria){
        
            List <MenuItemResponseDto> response=service.searchMenu(criteria.categoryId(), criteria.minPrice()
